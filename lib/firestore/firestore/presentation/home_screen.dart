@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import '../models/listin.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -9,10 +11,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Listin> listListins = [
-    Listin(id: "L001", name: "Feira de Outubro"),
-    Listin(id: "L002", name: "Feira de Novembro"),
-  ];
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final List<Listin> listListins = [];
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +99,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: 16,
                   ),
                   ElevatedButton(
-                      onPressed: () {
-                        //TODO: Implementar adição
-                      },
-                      child: Text(confirmationButton)),
+                    onPressed: () {
+                      Listin listin = Listin(
+                        id: const Uuid().v1(),
+                        name: nameController.text,
+                      );
+                      firestore
+                          .collection('listins')
+                          .doc(listin.id)
+                          .set(listin.toMap());
+
+                      Navigator.pop(context);
+                    },
+                    child: Text(confirmationButton),
+                  ),
                 ],
               )
             ],
