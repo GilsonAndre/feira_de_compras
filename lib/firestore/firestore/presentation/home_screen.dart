@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   List<Listin> listListins = [];
 
-  final colectionName = 'listins';
+  final String colectionName = 'listins';
 
   @override
   void initState() {

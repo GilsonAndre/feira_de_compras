@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feira_de_compras/firestore/firestore/models/listin.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -13,14 +14,14 @@ class ProdutoScreen extends StatefulWidget {
 }
 
 class _ProdutoScreenState extends State<ProdutoScreen> {
-  List<Produto> listaProdutosPlanejados = [
-    Produto(id: "ADASD", name: "Maçã", isComprado: false),
-    Produto(id: "UUID", name: "Pêra", isComprado: false),
-  ];
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  List<Produto> listaProdutosPegos = [
-    Produto(id: "UUID", name: "Laranja", amount: 5, price: 1, isComprado: true),
-  ];
+  List<Produto> listaProdutosPlanejados = [];
+
+  List<Produto> listaProdutosPegos = [];
+
+  final String colectionName = 'listins';
+  final String subColectionName = 'Produtos';
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +111,6 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     bool isComprado = false;
 
     // Caso esteja editando
-    
 
     // Função do Flutter que mostra o modal na tela
     showModalBottomSheet(
@@ -130,7 +130,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
           // Formulário com Título, Campo e Botões
           child: ListView(
             children: [
-              Text(labelTitle, style: Theme.of(context).textTheme.headlineSmall),
+              Text(labelTitle,
+                  style: Theme.of(context).textTheme.headlineSmall),
               TextFormField(
                 controller: nameController,
                 keyboardType: TextInputType.name,
@@ -193,10 +194,14 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                       );
 
                       // Usar id do model
-                      
 
-                      // TODO: Salvar no Firestore
-
+                      // Salvar no Firestore
+                      firestore
+                          .collection(colectionName)
+                          .doc(widget.listin.id)
+                          .collection(subColectionName)
+                          .doc(produto.id)
+                          .set(produto.toMap());
                       // Atualizar a lista
                       refresh();
 
@@ -214,5 +219,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     );
   }
 
-  refresh() {}
+  refresh() {
+    
+  }
 }
