@@ -12,7 +12,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  final List<Listin> listListins = [];
+
+  List<Listin> listListins = [];
+
+  final colectionName = 'listins';
+
+  @override
+  void initState() {
+    refresh();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,17 +43,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(fontSize: 18),
               ),
             )
-          : ListView(
-              children: List.generate(
-                listListins.length,
-                (index) {
-                  Listin model = listListins[index];
-                  return ListTile(
-                    leading: const Icon(Icons.list_alt_rounded),
-                    title: Text(model.name),
-                    subtitle: Text(model.id),
-                  );
-                },
+          : RefreshIndicator(
+              onRefresh: () {
+                return refresh();
+              },
+              child: ListView(
+                children: List.generate(
+                  listListins.length,
+                  (index) {
+                    Listin model = listListins[index];
+                    return ListTile(
+                      leading: const Icon(Icons.list_alt_rounded),
+                      title: Text(model.name),
+                      subtitle: Text(model.id),
+                    );
+                  },
+                ),
               ),
             ),
     );
@@ -105,9 +119,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: nameController.text,
                       );
                       firestore
-                          .collection('listins')
+                          .collection(colectionName)
                           .doc(listin.id)
                           .set(listin.toMap());
+
+                      refresh();
 
                       Navigator.pop(context);
                     },
@@ -120,5 +136,18 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  refresh() async {
+    List<Listin> listEmpty = [];
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+        await firestore.collection(colectionName).get();
+
+    for (var doc in snapshot.docs) {
+      listEmpty.add(Listin.fromMap(doc.data()));
+      setState(() {
+        listListins = listEmpty;
+      });
+    }
   }
 }
