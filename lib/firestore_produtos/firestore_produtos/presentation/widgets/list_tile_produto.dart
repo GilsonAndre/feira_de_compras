@@ -4,10 +4,12 @@ import '../../model/produto.dart';
 class ListTileProduto extends StatelessWidget {
   final Produto produto;
   final bool isComprado;
+  final Function onClick;
   const ListTileProduto({
     super.key,
     required this.produto,
     required this.isComprado,
+    required this.onClick,
   });
 
   @override
@@ -26,6 +28,9 @@ class ListTileProduto extends StatelessWidget {
             ? "Clique para adicionar preço"
             : "R\$ ${produto.price!}",
       ),
+      onTap: () {
+        onClick();
+      },
     );
   }
 }

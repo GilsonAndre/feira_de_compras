@@ -41,7 +41,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () {
-         return refresh();
+          return refresh();
         },
         child: ListView(
           children: [
@@ -76,6 +76,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               children: List.generate(listaProdutosPlanejados.length, (index) {
                 Produto produto = listaProdutosPlanejados[index];
                 return ListTileProduto(
+                  onClick: () {
+                    showFormModal(model: produto);
+                  },
                   produto: produto,
                   isComprado: false,
                 );
@@ -97,6 +100,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               children: List.generate(listaProdutosPegos.length, (index) {
                 Produto produto = listaProdutosPegos[index];
                 return ListTileProduto(
+                  onClick: () {
+                    showFormModal(model: produto);
+                  },
                   produto: produto,
                   isComprado: true,
                 );
@@ -122,6 +128,18 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     bool isComprado = false;
 
     // Caso esteja editando
+    if (model != null) {
+      labelTitle = 'Edianto o ${model.name}';
+      nameController.text = model.name;
+      
+      if (model.amount != null) {
+        priceController.text = model.amount.toString();
+      }
+      
+      if (model.price != null) {
+        priceController.text = model.price.toString();
+      }
+    }
 
     // Função do Flutter que mostra o modal na tela
     showModalBottomSheet(
@@ -205,7 +223,15 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                       );
 
                       // Usar id do model
-
+                      if (model != null) {
+                        produto.id = model.id;
+                      }
+                      if (amountController.text != '') {
+                        produto.amount = double.parse(amountController.text);
+                      }
+                      if (priceController.text != '') {
+                        produto.price = double.parse(priceController.text);
+                      }
                       // Salvar no Firestore
                       firestore
                           .collection(colectionName)
