@@ -24,6 +24,12 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   final String subColectionName = 'Produtos';
 
   @override
+  void initState() {
+    refresh();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.listin.name)),
@@ -33,66 +39,71 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         },
         child: const Icon(Icons.add),
       ),
-      body: ListView(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: const Column(
-              children: [
-                Text(
-                  "R\$${0}",
-                  style: TextStyle(fontSize: 42),
-                ),
-                Text(
-                  "total previsto para essa compra",
-                  style: TextStyle(fontStyle: FontStyle.italic),
-                ),
-              ],
+      body: RefreshIndicator(
+        onRefresh: () {
+         return refresh();
+        },
+        child: ListView(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: const Column(
+                children: [
+                  Text(
+                    "R\$${0}",
+                    style: TextStyle(fontSize: 42),
+                  ),
+                  Text(
+                    "total previsto para essa compra",
+                    style: TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Divider(thickness: 2),
-          ),
-          const Text(
-            "Produtos Planejados",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Divider(thickness: 2),
             ),
-          ),
-          Column(
-            children: List.generate(listaProdutosPlanejados.length, (index) {
-              Produto produto = listaProdutosPlanejados[index];
-              return ListTileProduto(
-                produto: produto,
-                isComprado: false,
-              );
-            }),
-          ),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Divider(thickness: 2),
-          ),
-          const Text(
-            "Produtos Comprados",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            const Text(
+              "Produtos Planejados",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          Column(
-            children: List.generate(listaProdutosPegos.length, (index) {
-              Produto produto = listaProdutosPegos[index];
-              return ListTileProduto(
-                produto: produto,
-                isComprado: true,
-              );
-            }),
-          ),
-        ],
+            Column(
+              children: List.generate(listaProdutosPlanejados.length, (index) {
+                Produto produto = listaProdutosPlanejados[index];
+                return ListTileProduto(
+                  produto: produto,
+                  isComprado: false,
+                );
+              }),
+            ),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Divider(thickness: 2),
+            ),
+            const Text(
+              "Produtos Comprados",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Column(
+              children: List.generate(listaProdutosPegos.length, (index) {
+                Produto produto = listaProdutosPegos[index];
+                return ListTileProduto(
+                  produto: produto,
+                  isComprado: true,
+                );
+              }),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -219,7 +230,19 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     );
   }
 
-  refresh() {
-    
+  refresh() async {
+    List<Produto> emptyList = [];
+    QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+        .collection(colectionName)
+        .doc(widget.listin.id)
+        .collection(subColectionName)
+        .get();
+    for (var doc in snapshot.docs) {
+      emptyList.add(Produto.fromMap(doc.data()));
+    }
+
+    setState(() {
+      listaProdutosPlanejados = emptyList;
+    });
   }
 }
