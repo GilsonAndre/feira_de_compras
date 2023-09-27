@@ -52,13 +52,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   listListins.length,
                   (index) {
                     Listin model = listListins[index];
-                    return ListTile(
-                      leading: const Icon(Icons.list_alt_rounded),
-                      title: Text(model.name),
-                      subtitle: Text(model.id),
-                      onLongPress: () {
-                        showFormModal(model: model);
+                    return Dismissible(
+                      key: ValueKey<Listin>(model),
+                      onDismissed: (direction) {
+                        deletedListin(model);
                       },
+                      direction: DismissDirection.startToEnd,
+                      background: Container(
+                        padding: const EdgeInsets.only(top: 20),
+                        color: Colors.red,
+                        child: const Text(
+                          'Deletando...',
+                          style: TextStyle(
+                            fontSize: 25,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: const Icon(Icons.list_alt_rounded),
+                        title: Text(model.name),
+                        subtitle: Text(model.id),
+                        onLongPress: () {
+                          showFormModal(model: model);
+                        },
+                      ),
                     );
                   },
                 ),
@@ -162,5 +180,10 @@ class _HomeScreenState extends State<HomeScreen> {
         listListins = listEmpty;
       });
     }
+  }
+
+  deletedListin(Listin model) {
+    firestore.collection(colectionName).doc(model.id).delete();
+    refresh();
   }
 }
