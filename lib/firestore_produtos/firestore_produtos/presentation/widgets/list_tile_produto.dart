@@ -5,18 +5,25 @@ class ListTileProduto extends StatelessWidget {
   final Produto produto;
   final bool isComprado;
   final Function onClick;
+  final Function iconClick;
   const ListTileProduto({
     super.key,
     required this.produto,
     required this.isComprado,
     required this.onClick,
+    required this.iconClick,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(
-        (isComprado) ? Icons.shopping_basket : Icons.check,
+      leading: IconButton(
+        icon: Icon(
+          (isComprado) ? Icons.check : Icons.shopping_basket,
+        ),
+        onPressed: () {
+          iconClick();
+        },
       ),
       title: Text(
         (produto.amount == null)

@@ -23,6 +23,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   final String colectionName = 'listins';
   final String subColectionName = 'Produtos';
 
+  bool isCompradoGeral = false;
   @override
   void initState() {
     refresh();
@@ -79,6 +80,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                   onClick: () {
                     showFormModal(model: produto);
                   },
+                  iconClick: () {
+                    changeBuy(produto);
+                  },
                   produto: produto,
                   isComprado: false,
                 );
@@ -102,6 +106,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                 return ListTileProduto(
                   onClick: () {
                     showFormModal(model: produto);
+                  },
+                  iconClick: () {
+                    changeBuy(produto);
                   },
                   produto: produto,
                   isComprado: true,
@@ -131,11 +138,11 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     if (model != null) {
       labelTitle = 'Edianto o ${model.name}';
       nameController.text = model.name;
-      
+
       if (model.amount != null) {
-        priceController.text = model.amount.toString();
+        amountController.text = model.amount.toString();
       }
-      
+
       if (model.price != null) {
         priceController.text = model.price.toString();
       }
@@ -266,9 +273,34 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     for (var doc in snapshot.docs) {
       emptyList.add(Produto.fromMap(doc.data()));
     }
+    filterProducts(emptyList);
+  }
 
-    setState(() {
-      listaProdutosPlanejados = emptyList;
-    });
+  filterProducts(List<Produto> listProduct) async {
+    List<Produto> emptyListPegos = [];
+    List<Produto> emptyListPlanejados = [];
+
+    for (var produto in listProduct) {
+      if (produto.isComprado) {
+        emptyListPegos.add(produto);
+      } else {
+        emptyListPlanejados.add(produto);
+      }
+      setState(() {
+        listaProdutosPegos = emptyListPegos;
+        listaProdutosPlanejados = emptyListPlanejados;
+      });
+    }
+  }
+
+  changeBuy(Produto produto) {
+    produto.isComprado = !produto.isComprado;
+    firestore
+        .collection(colectionName)
+        .doc(widget.listin.id)
+        .collection(subColectionName)
+        .doc(produto.id)
+        .update({'isComprado': produto.isComprado});
+    refresh();
   }
 }
