@@ -23,7 +23,6 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   final String colectionName = 'listins';
   final String subColectionName = 'Produtos';
 
-  bool isCompradoGeral = false;
   @override
   void initState() {
     refresh();
@@ -146,6 +145,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       if (model.price != null) {
         priceController.text = model.price.toString();
       }
+      isComprado = model.isComprado;
     }
 
     // Função do Flutter que mostra o modal na tela
