@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feira_de_compras/firestore/firestore/models/listin.dart';
+import 'package:feira_de_compras/firestore_produtos/firestore_produtos/presentation/helpers/enum.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../model/produto.dart';
@@ -23,6 +24,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   final String colectionName = 'listins';
   final String subColectionName = 'Produtos';
 
+  OrdemProduto ordem = OrdemProduto.name;
+  bool isDescrecente = false;
+
   @override
   void initState() {
     refresh();
@@ -32,7 +36,40 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.listin.name)),
+      appBar: AppBar(
+        title: Text(widget.listin.name),
+        actions: [
+          PopupMenuButton(
+            onSelected: (value) {
+              setState(() {
+                if (ordem == value) {
+                  isDescrecente = !isDescrecente;
+                } else {
+                  ordem = value;
+                  isDescrecente = false;
+                }
+                refresh();
+              });
+            },
+            itemBuilder: (context) {
+              return [
+                const PopupMenuItem(
+                  value: OrdemProduto.name,
+                  child: Text('Ordenar por Nome'),
+                ),
+                const PopupMenuItem(
+                  value: OrdemProduto.amount,
+                  child: Text('Ordenar por Quantidade'),
+                ),
+                const PopupMenuItem(
+                  value: OrdemProduto.price,
+                  child: Text('Ordenar por preço'),
+                ),
+              ];
+            },
+          )
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showFormModal();
@@ -76,13 +113,13 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               children: List.generate(listaProdutosPlanejados.length, (index) {
                 Produto produto = listaProdutosPlanejados[index];
                 return ListTileProduto(
-                  onClick: () {
+                  editClick: () {
                     showFormModal(model: produto);
                   },
                   iconClick: () {
                     changeBuy(produto);
                   },
-                  deleted: () {
+                  deletedClick: () {
                     deletedProduct(produto);
                   },
                   produto: produto,
@@ -106,13 +143,13 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
               children: List.generate(listaProdutosPegos.length, (index) {
                 Produto produto = listaProdutosPegos[index];
                 return ListTileProduto(
-                  onClick: () {
+                  editClick: () {
                     showFormModal(model: produto);
                   },
                   iconClick: () {
                     changeBuy(produto);
                   },
-                  deleted: () {
+                  deletedClick: () {
                     deletedProduct(produto);
                     refresh();
                   },
@@ -276,6 +313,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection(colectionName)
         .doc(widget.listin.id)
         .collection(subColectionName)
+        .orderBy(ordem.name, descending: isDescrecente)
         .get();
     for (var doc in snapshot.docs) {
       emptyList.add(Produto.fromMap(doc.data()));
@@ -310,7 +348,8 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .update({'isComprado': produto.isComprado});
     refresh();
   }
-  //resolver bug que apaga o ultimo porem continua mostrando 
+
+  //resolver bug que apaga o ultimo porem continua mostrando
   deletedProduct(Produto produto) async {
     await firestore
         .collection(colectionName)

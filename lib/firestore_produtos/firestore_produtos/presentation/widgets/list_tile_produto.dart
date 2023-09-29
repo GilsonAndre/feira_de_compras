@@ -4,16 +4,16 @@ import '../../model/produto.dart';
 class ListTileProduto extends StatelessWidget {
   final Produto produto;
   final bool isComprado;
-  final Function onClick;
+  final Function editClick;
   final Function iconClick;
-  final Function deleted;
+  final Function deletedClick;
   const ListTileProduto({
     super.key,
     required this.produto,
     required this.isComprado,
-    required this.onClick,
+    required this.editClick,
     required this.iconClick,
-    required this.deleted,
+    required this.deletedClick,
   });
 
   @override
@@ -38,11 +38,11 @@ class ListTileProduto extends StatelessWidget {
             : "R\$ ${produto.price!}",
       ),
       onTap: () {
-        onClick();
+        editClick();
       },
       trailing: IconButton(
         onPressed: () {
-          deleted();
+          deletedClick();
         },
         icon: const Icon(
           Icons.delete_forever,
