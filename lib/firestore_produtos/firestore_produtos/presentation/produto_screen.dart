@@ -82,6 +82,9 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                   iconClick: () {
                     changeBuy(produto);
                   },
+                  deleted: () {
+                    deletedProduct(produto);
+                  },
                   produto: produto,
                   isComprado: false,
                 );
@@ -108,6 +111,10 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                   },
                   iconClick: () {
                     changeBuy(produto);
+                  },
+                  deleted: () {
+                    deletedProduct(produto);
+                    refresh();
                   },
                   produto: produto,
                   isComprado: true,
@@ -145,7 +152,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       if (model.price != null) {
         priceController.text = model.price.toString();
       }
-      isComprado = model.isComprado;
+      //isComprado = model.isComprado;
     }
 
     // Função do Flutter que mostra o modal na tela
@@ -276,7 +283,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     filterProducts(emptyList);
   }
 
-  filterProducts(List<Produto> listProduct) async {
+  filterProducts(List<Produto> listProduct) {
     List<Produto> emptyListPegos = [];
     List<Produto> emptyListPlanejados = [];
 
@@ -293,14 +300,24 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     }
   }
 
-  changeBuy(Produto produto) {
+  changeBuy(Produto produto) async {
     produto.isComprado = !produto.isComprado;
-    firestore
+    await firestore
         .collection(colectionName)
         .doc(widget.listin.id)
         .collection(subColectionName)
         .doc(produto.id)
         .update({'isComprado': produto.isComprado});
+    refresh();
+  }
+  //resolver bug que apaga o ultimo porem continua mostrando 
+  deletedProduct(Produto produto) async {
+    await firestore
+        .collection(colectionName)
+        .doc(widget.listin.id)
+        .collection(subColectionName)
+        .doc(produto.id)
+        .delete();
     refresh();
   }
 }

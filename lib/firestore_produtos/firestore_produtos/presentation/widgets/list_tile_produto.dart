@@ -6,12 +6,14 @@ class ListTileProduto extends StatelessWidget {
   final bool isComprado;
   final Function onClick;
   final Function iconClick;
+  final Function deleted;
   const ListTileProduto({
     super.key,
     required this.produto,
     required this.isComprado,
     required this.onClick,
     required this.iconClick,
+    required this.deleted,
   });
 
   @override
@@ -38,6 +40,15 @@ class ListTileProduto extends StatelessWidget {
       onTap: () {
         onClick();
       },
+      trailing: IconButton(
+        onPressed: () {
+          deleted();
+        },
+        icon: const Icon(
+          Icons.delete_forever,
+          color: Colors.red,
+        ),
+      ),
     );
   }
 }

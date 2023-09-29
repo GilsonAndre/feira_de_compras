@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feira_de_compras/firestore/firestore/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,8 +10,6 @@ void main() async {
   );
 
   runApp(const MyApp());
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  firestore.collection('colecTentando').doc('tentando').set({'consegui': true});
 }
 
 class MyApp extends StatelessWidget {
