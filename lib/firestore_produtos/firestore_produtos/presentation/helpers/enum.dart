@@ -1,1 +1,1 @@
-enum OrdemProduto {name, price, amount}
+enum OrdemProduto {name, amount, price}

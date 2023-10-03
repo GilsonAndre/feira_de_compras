@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  deletedListin(Listin model) async{
+  deletedListin(Listin model) async {
     await firestore.collection(colectionName).doc(model.id).delete();
     refresh();
   }

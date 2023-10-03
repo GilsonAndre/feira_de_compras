@@ -124,18 +124,33 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
             Column(
               children: List.generate(listaProdutosPlanejados.length, (index) {
                 Produto produto = listaProdutosPlanejados[index];
-                return ListTileProduto(
-                  editClick: () {
-                    showFormModal(model: produto);
-                  },
-                  iconClick: () {
-                    changeBuy(produto);
-                  },
-                  deletedClick: () {
+                return Dismissible(
+                  key: ValueKey<Produto>(produto),
+                  onDismissed: (direction) {
                     deletedProduct(produto);
                   },
-                  produto: produto,
-                  isComprado: false,
+                  direction: DismissDirection.startToEnd,
+                  background: Container(
+                    padding: const EdgeInsets.only(top: 20),
+                    color: Colors.red,
+                    child: const Text(
+                      'Deletando...',
+                      style: TextStyle(
+                        fontSize: 25,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  child: ListTileProduto(
+                    editClick: () {
+                      showFormModal(model: produto);
+                    },
+                    iconClick: () {
+                      changeBuy(produto);
+                    },
+                    produto: produto,
+                    isComprado: false,
+                  ),
                 );
               }),
             ),
@@ -154,18 +169,33 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
             Column(
               children: List.generate(listaProdutosPegos.length, (index) {
                 Produto produto = listaProdutosPegos[index];
-                return ListTileProduto(
-                  editClick: () {
-                    showFormModal(model: produto);
-                  },
-                  iconClick: () {
-                    changeBuy(produto);
-                  },
-                  deletedClick: () {
+                return Dismissible(
+                  key: ValueKey<Produto>(produto),
+                  onDismissed: (direction) {
                     deletedProduct(produto);
                   },
-                  produto: produto,
-                  isComprado: true,
+                  direction: DismissDirection.startToEnd,
+                  background: Container(
+                    padding: const EdgeInsets.only(top: 20),
+                    color: Colors.red,
+                    child: const Text(
+                      'Deletando...',
+                      style: TextStyle(
+                        fontSize: 25,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  child: ListTileProduto(
+                    editClick: () {
+                      showFormModal(model: produto);
+                    },
+                    iconClick: () {
+                      changeBuy(produto);
+                    },
+                    produto: produto,
+                    isComprado: true,
+                  ),
                 );
               }),
             ),
@@ -366,6 +396,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection(subColectionName)
         .doc(produto.id)
         .delete();
+    refresh();
   }
 
   //Ele vê que ocorreu uma mudança e avisa que mudou assim evintando o refresh
@@ -386,7 +417,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     for (var produto in listaProdutosPegos) {
       if (produto.amount != null && produto.price != null) {
         total += produto.amount! * produto.price!;
-      } 
+      }
     }
     return total;
   }
