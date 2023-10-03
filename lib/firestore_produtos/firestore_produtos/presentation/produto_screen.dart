@@ -22,13 +22,17 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
 
   List<Produto> listaProdutosPegos = [];
 
+  //nome do colletion principal
   final String colectionName = 'listins';
+  //nome da subColeção
   final String subColectionName = 'Produtos';
 
   OrdemProduto ordem = OrdemProduto.name;
   bool isDescrecente = false;
 
+  //responsavel por cancelar o listener quando fechamos o app
   late StreamSubscription listener;
+
   @override
   void initState() {
     setUpListner();
@@ -92,13 +96,13 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
           children: [
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: const Column(
+              child: Column(
                 children: [
                   Text(
-                    "R\$${0}",
-                    style: TextStyle(fontSize: 42),
+                    "R\$${calcProduct().toStringAsFixed(2)}",
+                    style: const TextStyle(fontSize: 42),
                   ),
-                  Text(
+                  const Text(
                     "total previsto para essa compra",
                     style: TextStyle(fontStyle: FontStyle.italic),
                   ),
@@ -196,7 +200,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       if (model.price != null) {
         priceController.text = model.price.toString();
       }
-      //isComprado = model.isComprado;
+      isComprado = model.isComprado;
     }
 
     // Função do Flutter que mostra o modal na tela
@@ -363,6 +367,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .doc(produto.id)
         .delete();
   }
+
   //Ele vê que ocorreu uma mudança e avisa que mudou assim evintando o refresh
   setUpListner() {
     listener = firestore
@@ -377,6 +382,12 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   }
 
   double calcProduct() {
-    return 2;
+    double total = 0;
+    for (var produto in listaProdutosPegos) {
+      if (produto.amount != null && produto.price != null) {
+        total += produto.amount! * produto.price!;
+      } 
+    }
+    return total;
   }
 }
