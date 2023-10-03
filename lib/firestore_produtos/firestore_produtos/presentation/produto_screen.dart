@@ -409,6 +409,7 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .snapshots()
         .listen((snapshot) {
       refresh(snapshot: snapshot);
+      changeSnackBar(snapshot);
     });
   }
 
@@ -420,5 +421,37 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
       }
     }
     return total;
+  }
+
+  changeSnackBar(QuerySnapshot<Map<String, dynamic>> snapshot) {
+    if (snapshot.docChanges.length == 1) {
+      for (var snapshot in snapshot.docChanges) {
+        Produto produto = Produto.fromMap(snapshot.doc.data()!);
+        switch (snapshot.type) {
+          case DocumentChangeType.added:
+            showSnack('Foi Adicionado: ${produto.name}', Colors.green);
+            break;
+          case DocumentChangeType.modified:
+            showSnack('Foi Modificado: ${produto.name}', Colors.amber);
+            break;
+          case DocumentChangeType.removed:
+            showSnack('Foi Removido: ${produto.name}', Colors.red);
+            break;
+        }
+      }
+    }
+  }
+
+  showSnack(String text, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          text,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 }
