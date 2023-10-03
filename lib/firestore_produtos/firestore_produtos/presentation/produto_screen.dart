@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:feira_de_compras/firestore/firestore/models/listin.dart';
 import 'package:feira_de_compras/firestore_produtos/firestore_produtos/presentation/helpers/enum.dart';
@@ -27,10 +28,17 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
   OrdemProduto ordem = OrdemProduto.name;
   bool isDescrecente = false;
 
+  late StreamSubscription listener;
   @override
   void initState() {
-    refresh();
+    setUpListner();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    listener.cancel();
+    super.dispose();
   }
 
   @override
@@ -151,7 +159,6 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                   },
                   deletedClick: () {
                     deletedProduct(produto);
-                    refresh();
                   },
                   produto: produto,
                   isComprado: true,
@@ -290,8 +297,6 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
                           .collection(subColectionName)
                           .doc(produto.id)
                           .set(produto.toMap());
-                      // Atualizar a lista
-                      refresh();
 
                       // Fechar o Modal
                       Navigator.pop(context);
@@ -307,14 +312,15 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
     );
   }
 
-  refresh() async {
+  refresh({QuerySnapshot<Map<String, dynamic>>? snapshot}) async {
     List<Produto> emptyList = [];
-    QuerySnapshot<Map<String, dynamic>> snapshot = await firestore
+    snapshot ??= await firestore
         .collection(colectionName)
         .doc(widget.listin.id)
         .collection(subColectionName)
         .orderBy(ordem.name, descending: isDescrecente)
         .get();
+
     for (var doc in snapshot.docs) {
       emptyList.add(Produto.fromMap(doc.data()));
     }
@@ -346,7 +352,6 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection(subColectionName)
         .doc(produto.id)
         .update({'isComprado': produto.isComprado});
-    refresh();
   }
 
   //resolver bug que apaga o ultimo porem continua mostrando
@@ -357,6 +362,21 @@ class _ProdutoScreenState extends State<ProdutoScreen> {
         .collection(subColectionName)
         .doc(produto.id)
         .delete();
-    refresh();
+  }
+  //Ele vê que ocorreu uma mudança e avisa que mudou assim evintando o refresh
+  setUpListner() {
+    listener = firestore
+        .collection(colectionName)
+        .doc(widget.listin.id)
+        .collection(subColectionName)
+        .orderBy(ordem.name, descending: isDescrecente)
+        .snapshots()
+        .listen((snapshot) {
+      refresh(snapshot: snapshot);
+    });
+  }
+
+  double calcProduct() {
+    return 2;
   }
 }
